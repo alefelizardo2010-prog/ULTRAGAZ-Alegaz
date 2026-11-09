@@ -125,6 +125,6 @@ CREATE INDEX idx_pedido_status    ON pedido (status);
 -- Dados de exemplo (opcional, para testar o sistema)
 -- ------------------------------------------------------------
 INSERT INTO produto (nome, descricao, peso_kg, preco) VALUES
-    ('Botijão P13', 'Gás de cozinha 13 kg', 13.00, 120.00),
-    ('Botijão P20', 'Gás 20 kg',            20.00, 180.00),
-    ('Botijão P45', 'Gás industrial 45 kg', 45.00, 400.00);
+    ('Botijão P13', 'Gás de cozinha 13 kg', 13.00, 134.00),
+    ('Botijão P20', 'Gás 20 kg',            20.00, 245.00),
+    ('Botijão P45', 'Gás industrial 45 kg', 45.00, 480.00);
