@@ -660,3 +660,60 @@ body {
   .pagina-pedidos .linha-cidade { grid-template-columns: 1fr 1fr; }
   .pagina-pedidos .linha-cidade label:last-child { grid-column: span 2; }
 }
+
+.pagina-pedidos header {
+  background: #0a2149;
+  border-bottom: 5px solid #12b3a8;
+  padding: 0 40px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pagina-pedidos header .logo {
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.pagina-pedidos header nav {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.pagina-pedidos header nav a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.pagina-pedidos header nav a:hover { color: #12b3a8; }
+
+.pagina-pedidos header nav a.ativo {
+  border-bottom: 2px solid #12b3a8;
+  padding-bottom: 2px;
+}
+
+.pagina-pedidos header nav a.botao {
+  background: #12b3a8;
+  color: #0a2149;
+  padding: 12px 18px;
+  border-radius: 6px;
+}
+
+@media (max-width: 700px) {
+  .pagina-pedidos header {
+    height: auto;
+    padding: 16px;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .pagina-pedidos header nav {
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
