@@ -529,12 +529,7 @@ body {
     .linha-campos .campo-uf { flex: 1 0 90px; }
 }
 
-/* ===================================================
-   PÁGINA DE PEDIDOS (pages/pedidos.html)
-   Cole este bloco no final do seu arquivo CSS.
-   Tudo vale só para <body class="pagina-pedidos">
-   =================================================== */
-
+/* ===== CABEÇALHO DA PÁGINA DE PEDIDOS ===== */
 .pagina-pedidos header {
   background: #0a2149;
   border-bottom: 5px solid #12b3a8;
@@ -570,7 +565,10 @@ body {
   text-decoration: none;
   font-weight: 600;
   padding: 10px 16px;
+  border: 0;
+  border-bottom: 0;
   border-radius: 6px;
+  background: transparent;
   transition: background .15s;
 }
 
@@ -579,6 +577,8 @@ body {
 .pagina-pedidos header nav a.ativo {
   background: #12b3a8;
   color: #fff;
+  border-bottom: 0;
+  padding: 10px 16px;
 }
 
 @media (max-width: 800px) {
