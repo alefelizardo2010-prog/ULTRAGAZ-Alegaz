@@ -229,3 +229,222 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+/* ===================================================
+   PÁGINA DE PEDIDOS (pages/pedidos.html)
+   Cole este bloco no final do seu arquivo JS.
+   Só roda na página que tem a tabela de pedidos (#lista),
+   então não interfere nas outras páginas.
+   =================================================== */
+(function iniciarPaginaPedidos() {
+  if (!document.getElementById('lista')) return;
+
+  // Os pedidos ficam salvos no navegador (localStorage) com esta chave.
+  const CHAVE = 'ultragaz_pedidos';
+
+  const el = (id) => document.getElementById(id);
+  const lista = el('lista');
+  const modal = el('modal');
+  const form = el('form');
+  let editandoId = null;
+
+  /* ===== Armazenamento ===== */
+  function carregar() {
+    try {
+      return JSON.parse(localStorage.getItem(CHAVE)) || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function salvar(pedidos) {
+    try {
+      localStorage.setItem(CHAVE, JSON.stringify(pedidos));
+    } catch (e) {
+      alert('Não foi possível salvar os pedidos neste navegador.');
+    }
+  }
+
+  function proximoId(pedidos) {
+    return pedidos.reduce((max, p) => Math.max(max, p.id), 0) + 1;
+  }
+
+  function escapar(texto) {
+    const div = document.createElement('div');
+    div.textContent = texto == null ? '' : String(texto);
+    return div.innerHTML;
+  }
+
+  /* ===== Tabela ===== */
+  function montarEndereco(p) {
+    if (!p.rua) return '<span style="color:#6b7488">—</span>';
+    const linha1 = escapar(p.rua) + (p.numero ? ', ' + escapar(p.numero) : '');
+    const linha2 = [p.bairro, p.cidade && p.uf ? p.cidade + '/' + p.uf : p.cidade]
+      .filter(Boolean).map(escapar).join(' - ');
+    const cep = p.cep ? ' · CEP ' + escapar(p.cep) : '';
+    return linha1 + '<small>' + linha2 + cep + '</small>';
+  }
+
+  function desenhar() {
+    const pedidos = carregar();
+    el('contador').textContent = pedidos.length === 1
+      ? '1 pedido registrado'
+      : pedidos.length + ' pedidos registrados';
+
+    if (!pedidos.length) {
+      lista.innerHTML = '<tr><td colspan="8" class="vazio">Nenhum pedido ainda. Clique em “Novo pedido” para cadastrar o primeiro.</td></tr>';
+      return;
+    }
+
+    lista.innerHTML = pedidos.map((p) => `
+      <tr>
+        <td>${p.id}</td>
+        <td>${escapar(p.nome)}</td>
+        <td>${escapar(p.telefone)}</td>
+        <td class="endereco">${montarEndereco(p)}</td>
+        <td>${escapar(p.produto)}</td>
+        <td>${escapar(p.qtd)}</td>
+        <td class="mensagem">${escapar(p.mensagem)}</td>
+        <td class="acoes">
+          <button class="btn btn-editar" data-editar="${p.id}" type="button">Editar</button>
+          <button class="btn btn-excluir" data-excluir="${p.id}" type="button">Excluir</button>
+        </td>
+      </tr>`).join('');
+  }
+
+  /* ===== Formulário ===== */
+  function mostrarStatus(texto, tipo) {
+    const s = el('cepStatus');
+    s.textContent = texto || '';
+    s.className = 'status' + (tipo ? ' ' + tipo : '');
+  }
+
+  function abrirModal(pedido) {
+    editandoId = pedido ? pedido.id : null;
+    el('tituloModal').textContent = pedido ? 'Editar pedido #' + pedido.id : 'Novo pedido';
+    el('nome').value = pedido ? pedido.nome : '';
+    el('telefone').value = pedido ? pedido.telefone : '';
+    el('cep').value = pedido ? (pedido.cep || '') : '';
+    el('rua').value = pedido ? (pedido.rua || '') : '';
+    el('numero').value = pedido ? (pedido.numero || '') : '';
+    el('bairro').value = pedido ? (pedido.bairro || '') : '';
+    el('cidade').value = pedido ? (pedido.cidade || '') : '';
+    el('uf').value = pedido ? (pedido.uf || '') : '';
+    el('produto').value = pedido ? pedido.produto : '';
+    el('qtd').value = pedido ? pedido.qtd : 1;
+    el('mensagem').value = pedido ? pedido.mensagem : '';
+    mostrarStatus('');
+    modal.showModal();
+    el('nome').focus();
+  }
+
+  /* Máscara de telefone: (00) 00000-0000 */
+  el('telefone').addEventListener('input', (e) => {
+    let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+    if (v.length > 6) {
+      v = v.length > 10
+        ? `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`
+        : `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`;
+    } else if (v.length > 2) {
+      v = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+    }
+    e.target.value = v;
+  });
+
+  /* ===== CEP (API ViaCEP) ===== */
+  async function buscarCep(cepLimpo) {
+    mostrarStatus('Buscando endereço...');
+    try {
+      const resposta = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      if (!resposta.ok) throw new Error('Falha na consulta');
+      const dados = await resposta.json();
+
+      if (dados.erro) {
+        mostrarStatus('CEP não encontrado. Preencha o endereço manualmente.', 'erro');
+        el('rua').focus();
+        return;
+      }
+
+      el('rua').value = dados.logradouro || '';
+      el('bairro').value = dados.bairro || '';
+      el('cidade').value = dados.localidade || '';
+      el('uf').value = dados.uf || '';
+      mostrarStatus('Endereço encontrado.', 'ok');
+
+      (el('rua').value ? el('numero') : el('rua')).focus();
+    } catch (e) {
+      mostrarStatus('Não foi possível consultar o CEP. Preencha o endereço manualmente.', 'erro');
+    }
+  }
+
+  el('cep').addEventListener('input', (e) => {
+    let v = e.target.value.replace(/\D/g, '').slice(0, 8);
+    if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
+    e.target.value = v;
+
+    const limpo = v.replace(/\D/g, '');
+    if (limpo.length === 8) {
+      buscarCep(limpo);
+    } else {
+      mostrarStatus('');
+    }
+  });
+
+  el('uf').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase();
+  });
+
+  /* ===== Eventos ===== */
+  el('btnNovo').addEventListener('click', () => abrirModal(null));
+  el('btnCancelar').addEventListener('click', () => modal.close());
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const pedidos = carregar();
+    const dados = {
+      nome: el('nome').value.trim(),
+      telefone: el('telefone').value.trim(),
+      cep: el('cep').value.trim(),
+      rua: el('rua').value.trim(),
+      numero: el('numero').value.trim(),
+      bairro: el('bairro').value.trim(),
+      cidade: el('cidade').value.trim(),
+      uf: el('uf').value.trim().toUpperCase(),
+      produto: el('produto').value.trim(),
+      qtd: Math.max(1, parseInt(el('qtd').value, 10) || 1),
+      mensagem: el('mensagem').value.trim()
+    };
+
+    if (editandoId) {
+      const i = pedidos.findIndex((p) => p.id === editandoId);
+      if (i > -1) pedidos[i] = { ...pedidos[i], ...dados };
+    } else {
+      pedidos.push({ id: proximoId(pedidos), ...dados });
+    }
+
+    salvar(pedidos);
+    modal.close();
+    desenhar();
+  });
+
+  lista.addEventListener('click', (e) => {
+    const botao = e.target.closest('button');
+    if (!botao) return;
+    const pedidos = carregar();
+
+    if (botao.dataset.editar) {
+      const pedido = pedidos.find((p) => p.id === Number(botao.dataset.editar));
+      if (pedido) abrirModal(pedido);
+    }
+
+    if (botao.dataset.excluir) {
+      const id = Number(botao.dataset.excluir);
+      if (confirm('Excluir o pedido #' + id + '?')) {
+        salvar(pedidos.filter((p) => p.id !== id));
+        desenhar();
+      }
+    }
+  });
+
+  desenhar();
+})();
