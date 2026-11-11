@@ -593,3 +593,19 @@ body {
     justify-content: center;
   }
 }
+
+.navegacao .link-nav {
+    color: var(--texto-claro);
+    text-decoration: none;
+    margin-left: 1.5rem;
+    font-weight: 500;
+    padding: 0.5rem 0.8rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.navegacao .link-nav:hover,
+.navegacao .link-nav.ativo {
+    background-color: var(--verde-agua);
+    color: var(--azul-escuro);
+}
