@@ -1,43 +1,367 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Fazer Pedido - Ultragaz</title>
-    <link rel="stylesheet" href="../css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pedidos Recebidos | Ultragaz</title>
+  <style>
+    :root {
+      --azul: #0a2149;
+      --azul-claro: #e3e7ef;
+      --verde-agua: #12b3a8;
+      --verde: #22c55e;
+      --vermelho: #ef4444;
+      --fundo: #f1f5f8;
+      --texto: #1f2a44;
+      --cinza: #6b7488;
+      --borda: #dde2ea;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--fundo);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* Cabeçalho */
+    header {
+      background: var(--azul);
+      border-bottom: 5px solid var(--verde-agua);
+      padding: 0 40px;
+      height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header .logo {
+      color: #fff;
+      font-size: 2rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    header nav { display: flex; align-items: center; gap: 36px; }
+    header nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    header nav a:hover { color: var(--verde-agua); }
+    header nav a.ativo { border-bottom: 2px solid var(--verde-agua); padding-bottom: 2px; }
+    header nav a.botao {
+      background: var(--verde-agua);
+      color: var(--azul);
+      padding: 12px 18px;
+      border-radius: 6px;
+    }
+    header nav a.botao:hover { color: var(--azul); filter: brightness(1.08); }
+
+    /* Conteúdo */
+    main { max-width: 1200px; margin: 0 auto; padding: 40px 24px 60px; }
+    .topo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    h1 { font-size: 1.8rem; color: var(--azul); }
+    .contador { color: var(--cinza); font-size: .95rem; margin-top: 2px; }
+
+    .btn {
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 4px;
+      transition: filter .15s;
+    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+    .btn-novo { background: var(--verde); padding: 12px 24px; }
+    .btn-editar { background: var(--verde-agua); padding: 6px 14px; font-size: .9rem; }
+    .btn-excluir { background: var(--vermelho); padding: 6px 14px; font-size: .9rem; }
+    .btn-cancelar { background: #8a93a6; }
+
+    /* Tabela */
+    .tabela-wrap {
+      background: #fff;
+      border: 1px solid var(--borda);
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; min-width: 860px; }
+    thead th {
+      background: var(--azul);
+      color: #fff;
+      text-align: left;
+      font-weight: 600;
+      padding: 14px 16px;
+      font-size: .95rem;
+    }
+    tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--borda);
+      vertical-align: middle;
+      font-size: .95rem;
+    }
+    tbody tr:nth-child(even) { background: #f7f9fb; }
+    td.mensagem { max-width: 280px; color: var(--cinza); }
+    td.acoes { white-space: nowrap; display: flex; gap: 8px; }
+    .vazio {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--cinza);
+    }
+
+    /* Formulário (modal) */
+    dialog {
+      border: 0;
+      border-radius: 8px;
+      padding: 0;
+      width: min(480px, 92vw);
+      margin: auto;
+      box-shadow: 0 20px 50px rgba(10, 33, 73, .35);
+    }
+    dialog::backdrop { background: rgba(10, 33, 73, .55); }
+    dialog h2 {
+      background: var(--azul);
+      color: #fff;
+      font-size: 1.15rem;
+      padding: 16px 24px;
+      border-bottom: 4px solid var(--verde-agua);
+    }
+    dialog form { padding: 24px; display: grid; gap: 14px; }
+    label { display: grid; gap: 4px; font-weight: 600; font-size: .9rem; }
+    input, textarea {
+      font: inherit;
+      font-weight: 400;
+      padding: 10px 12px;
+      border: 1px solid #c5ccd8;
+      border-radius: 4px;
+      width: 100%;
+    }
+    input:focus, textarea:focus {
+      outline: 2px solid var(--verde-agua);
+      border-color: var(--verde-agua);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    .linha { display: grid; grid-template-columns: 1fr 100px; gap: 12px; }
+    .botoes { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+    .btn-salvar { background: var(--verde-agua); }
+
+    @media (max-width: 700px) {
+      header { padding: 0 16px; height: auto; flex-direction: column; gap: 12px; padding-block: 16px; }
+      header nav { gap: 16px; flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Fazer Pedido</h1>
-    </header>
 
+  <header>
+    <a class="logo" href="../index.html">Ultragaz</a>
     <nav>
-        <a href="../index.html">Início</a>
-        <a href="contato.html">Contato</a>
-        <a href="pedidos.html">Fazer Pedido</a>
-        <a href="pedidos.php">Ver Pedidos</a>
+      <a href="../index.html">Início</a>
+      <a href="../index.html#contato" class="botao">Peça Seu Gás / Contato</a>
     </nav>
+  </header>
 
-    <div class="container">
-        <h2>Formulário de Pedido</h2>
-        <form action="../pages php/salvar.php" method="POST">
-            <label for="nome_cliente">Seu Nome:</label>
-            <input type="text" id="nome_cliente" name="nome_cliente" required>
-
-            <label for="email">Seu E-mail:</label>
-            <input type="email" id="email" name="email" required>
-
-            <label for="produto">Produto:</label>
-            <input type="text" id="produto" name="produto" placeholder="Ex: Botijão P13" required>
-
-            <label for="quantidade">Quantidade:</label>
-            <input type="number" id="quantidade" name="quantidade" value="1" min="1" required>
-
-            <button type="submit">Confirmar Pedido</button>
-        </form>
+  <main>
+    <div class="topo">
+      <div>
+        <h1>Pedidos Recebidos</h1>
+        <p class="contador" id="contador"></p>
+      </div>
+      <button class="btn btn-novo" id="btnNovo" type="button">Novo pedido</button>
     </div>
 
-    <footer>
-        <p>&copy; Ultragaz - Todos os direitos reservados.</p>
-    </footer>
+    <div class="tabela-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Produto</th>
+            <th>Qtd</th>
+            <th>Mensagem</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="lista"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <dialog id="modal">
+    <h2 id="tituloModal">Novo pedido</h2>
+    <form id="form" method="dialog">
+      <label>Nome
+        <input type="text" id="nome" required maxlength="80">
+      </label>
+      <label>Telefone
+        <input type="tel" id="telefone" required placeholder="(19) 99999-9999" maxlength="15">
+      </label>
+      <div class="linha">
+        <label>Produto
+          <input type="text" id="produto" required list="produtos" maxlength="60">
+          <datalist id="produtos">
+            <option value="Botijão P13 (13 kg)">
+            <option value="Botijão P20 (20 kg)">
+            <option value="Botijão P45 (45 kg)">
+          </datalist>
+        </label>
+        <label>Qtd
+          <input type="number" id="qtd" required min="1" value="1">
+        </label>
+      </div>
+      <label>Mensagem
+        <textarea id="mensagem" maxlength="300" placeholder="Endereço, horário, observações..."></textarea>
+      </label>
+      <div class="botoes">
+        <button type="button" class="btn btn-cancelar" id="btnCancelar">Cancelar</button>
+        <button type="submit" class="btn btn-salvar">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    // Os pedidos ficam salvos no navegador (localStorage) com esta chave.
+    // Qualquer outra página do site pode gravar pedidos nela (veja o exemplo na resposta).
+    const CHAVE = 'ultragaz_pedidos';
+
+    const $ = (id) => document.getElementById(id);
+    const lista = $('lista');
+    const modal = $('modal');
+    const form = $('form');
+    let editandoId = null;
+
+    function carregar() {
+      try {
+        return JSON.parse(localStorage.getItem(CHAVE)) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function salvar(pedidos) {
+      try {
+        localStorage.setItem(CHAVE, JSON.stringify(pedidos));
+      } catch (e) {
+        alert('Não foi possível salvar os pedidos neste navegador.');
+      }
+    }
+
+    function proximoId(pedidos) {
+      return pedidos.reduce((max, p) => Math.max(max, p.id), 0) + 1;
+    }
+
+    function escapar(texto) {
+      const div = document.createElement('div');
+      div.textContent = texto == null ? '' : String(texto);
+      return div.innerHTML;
+    }
+
+    function desenhar() {
+      const pedidos = carregar();
+      $('contador').textContent = pedidos.length === 1
+        ? '1 pedido registrado'
+        : pedidos.length + ' pedidos registrados';
+
+      if (!pedidos.length) {
+        lista.innerHTML = '<tr><td colspan="7" class="vazio">Nenhum pedido ainda. Clique em “Novo pedido” para cadastrar o primeiro.</td></tr>';
+        return;
+      }
+
+      lista.innerHTML = pedidos.map((p) => `
+        <tr>
+          <td>${p.id}</td>
+          <td>${escapar(p.nome)}</td>
+          <td>${escapar(p.telefone)}</td>
+          <td>${escapar(p.produto)}</td>
+          <td>${escapar(p.qtd)}</td>
+          <td class="mensagem">${escapar(p.mensagem)}</td>
+          <td class="acoes">
+            <button class="btn btn-editar" data-editar="${p.id}" type="button">Editar</button>
+            <button class="btn btn-excluir" data-excluir="${p.id}" type="button">Excluir</button>
+          </td>
+        </tr>`).join('');
+    }
+
+    function abrirModal(pedido) {
+      editandoId = pedido ? pedido.id : null;
+      $('tituloModal').textContent = pedido ? 'Editar pedido #' + pedido.id : 'Novo pedido';
+      $('nome').value = pedido ? pedido.nome : '';
+      $('telefone').value = pedido ? pedido.telefone : '';
+      $('produto').value = pedido ? pedido.produto : '';
+      $('qtd').value = pedido ? pedido.qtd : 1;
+      $('mensagem').value = pedido ? pedido.mensagem : '';
+      modal.showModal();
+      $('nome').focus();
+    }
+
+    // Máscara simples de telefone: (00) 00000-0000
+    $('telefone').addEventListener('input', (e) => {
+      let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+      if (v.length > 6) {
+        v = v.length > 10
+          ? `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`
+          : `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`;
+      } else if (v.length > 2) {
+        v = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+      }
+      e.target.value = v;
+    });
+
+    $('btnNovo').addEventListener('click', () => abrirModal(null));
+    $('btnCancelar').addEventListener('click', () => modal.close());
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pedidos = carregar();
+      const dados = {
+        nome: $('nome').value.trim(),
+        telefone: $('telefone').value.trim(),
+        produto: $('produto').value.trim(),
+        qtd: Math.max(1, parseInt($('qtd').value, 10) || 1),
+        mensagem: $('mensagem').value.trim()
+      };
+
+      if (editandoId) {
+        const i = pedidos.findIndex((p) => p.id === editandoId);
+        if (i > -1) pedidos[i] = { ...pedidos[i], ...dados };
+      } else {
+        pedidos.push({ id: proximoId(pedidos), ...dados });
+      }
+
+      salvar(pedidos);
+      modal.close();
+      desenhar();
+    });
+
+    lista.addEventListener('click', (e) => {
+      const botao = e.target.closest('button');
+      if (!botao) return;
+      const pedidos = carregar();
+
+      if (botao.dataset.editar) {
+        const pedido = pedidos.find((p) => p.id === Number(botao.dataset.editar));
+        if (pedido) abrirModal(pedido);
+      }
+
+      if (botao.dataset.excluir) {
+        const id = Number(botao.dataset.excluir);
+        if (confirm('Excluir o pedido #' + id + '?')) {
+          salvar(pedidos.filter((p) => p.id !== id));
+          desenhar();
+        }
+      }
+    });
+
+    desenhar();
+  </script>
 </body>
 </html>
