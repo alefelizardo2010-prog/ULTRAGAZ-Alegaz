@@ -496,40 +496,150 @@ body {
     .sobre-moldura, .sobre-estrada { animation: none; }
 }
 
-/* ==========================================================================
-   PEDIDO (resumo de valor) E PAINEL ADMIN - mesmo visual do restante do site
-   ========================================================================== */
-.resumo-pedido {
-    background: #E6F8F6;
-    border-left: 4px solid var(--verde-agua);
-    color: var(--azul-escuro);
-    font-weight: 700;
-    padding: 0.8rem 1rem;
-    border-radius: 6px;
-    margin-bottom: 1.2rem;
+/* ===================================================
+   PÁGINA DE PEDIDOS - CSS COMPLETO (corpo + formulário + cabeçalho)
+   1) Apague do seu CSS qualquer bloco antigo da página de pedidos
+      (tudo que começa com .pagina-pedidos)
+   2) Cole este arquivo inteiro no FINAL do seu CSS
+   =================================================== */
+
+/* ===================================================
+   PÁGINA DE PEDIDOS (pages/pedidos.html)
+   Cole este bloco no final do seu arquivo CSS.
+   Tudo vale só para <body class="pagina-pedidos">
+   =================================================== */
+
+.pagina-pedidos {
+  --ped-azul: #0a2149;
+  --ped-verde-agua: #12b3a8;
+  --ped-verde: #22c55e;
+  --ped-vermelho: #ef4444;
+  --ped-texto: #1f2a44;
+  --ped-cinza: #6b7488;
+  --ped-borda: #dde2ea;
+  background: #f1f5f8;
+  color: var(--ped-texto);
 }
 
-.btn-enviar:disabled { opacity: 0.6; cursor: wait; }
+.pagina-pedidos main { max-width: 1280px; margin: 0 auto; padding: 40px 24px 60px; }
 
-.admin-principal { max-width: 1200px; width: 100%; margin: 2rem auto; padding: 0 1.5rem; }
-.admin-principal h2 { color: var(--azul-escuro); margin-bottom: 1rem; }
-.tabela-rolavel { overflow-x: auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(9, 35, 71, 0.1); border-top: 5px solid var(--verde-agua); }
-.tabela-admin { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-.tabela-admin th { background: var(--azul-escuro); color: #fff; text-align: left; padding: 0.7rem; white-space: nowrap; }
-.tabela-admin td { padding: 0.7rem; border-bottom: 1px solid #E2E8F0; vertical-align: top; }
-.tabela-admin small { color: #64748B; }
-.form-status select { padding: 0.4rem; border: 1px solid #CBD5E1; border-radius: 6px; }
-.btn-excluir { background: var(--vermelho-erro); color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-weight: 600; }
-.btn-excluir:hover { background: #B91C1C; }
-
-@media (max-width: 600px) {
-    .cabecalho { flex-direction: column; gap: 0.8rem; }
-    .navegacao .link-nav { margin: 0 0.3rem; }
-    .linha-campos { flex-wrap: wrap; }
-    .linha-campos .campo-uf { flex: 1 0 90px; }
+.pagina-pedidos .topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-/* ===== CABEÇALHO DA PÁGINA DE PEDIDOS ===== */
+.pagina-pedidos h1 { font-size: 1.8rem; color: var(--ped-azul); }
+.pagina-pedidos .contador { color: var(--ped-cinza); font-size: .95rem; margin-top: 2px; }
+
+/* Botões */
+.pagina-pedidos .btn {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 4px;
+  transition: filter .15s;
+}
+.pagina-pedidos .btn:hover { filter: brightness(1.08); }
+.pagina-pedidos .btn:focus-visible { outline: 3px solid var(--ped-azul); outline-offset: 2px; }
+.pagina-pedidos .btn-novo { background: var(--ped-verde); padding: 12px 24px; }
+.pagina-pedidos .btn-editar { background: var(--ped-verde-agua); padding: 6px 14px; font-size: .9rem; }
+.pagina-pedidos .btn-excluir { background: var(--ped-vermelho); padding: 6px 14px; font-size: .9rem; }
+.pagina-pedidos .btn-cancelar { background: #8a93a6; }
+.pagina-pedidos .btn-salvar { background: var(--ped-verde-agua); }
+
+/* Tabela */
+.pagina-pedidos .tabela-wrap {
+  background: #fff;
+  border: 1px solid var(--ped-borda);
+  border-radius: 6px;
+  overflow-x: auto;
+}
+.pagina-pedidos table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+.pagina-pedidos thead th {
+  background: var(--ped-azul);
+  color: #fff;
+  text-align: left;
+  font-weight: 600;
+  padding: 14px 16px;
+  font-size: .95rem;
+}
+.pagina-pedidos tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ped-borda);
+  vertical-align: middle;
+  font-size: .95rem;
+}
+.pagina-pedidos tbody tr:nth-child(even) { background: #f7f9fb; }
+.pagina-pedidos td.endereco { max-width: 240px; }
+.pagina-pedidos td.endereco small { display: block; color: var(--ped-cinza); margin-top: 2px; }
+.pagina-pedidos td.mensagem { max-width: 240px; color: var(--ped-cinza); }
+.pagina-pedidos td.acoes { white-space: nowrap; display: flex; gap: 8px; }
+.pagina-pedidos .vazio { text-align: center; padding: 48px 16px; color: var(--ped-cinza); }
+
+/* Formulário (modal) */
+.pagina-pedidos dialog {
+  border: 0;
+  border-radius: 8px;
+  padding: 0;
+  width: min(520px, 94vw);
+  max-height: 94vh;
+  margin: auto;
+  box-shadow: 0 20px 50px rgba(10, 33, 73, .35);
+  overflow-y: auto;
+}
+.pagina-pedidos dialog::backdrop { background: rgba(10, 33, 73, .55); }
+.pagina-pedidos dialog h2 {
+  background: var(--ped-azul);
+  color: #fff;
+  font-size: 1.15rem;
+  padding: 16px 24px;
+  border-bottom: 4px solid var(--ped-verde-agua);
+}
+.pagina-pedidos dialog form { padding: 24px; display: grid; gap: 14px; }
+.pagina-pedidos dialog label { display: grid; gap: 4px; font-weight: 600; font-size: .9rem; }
+.pagina-pedidos dialog input,
+.pagina-pedidos dialog textarea {
+  font: inherit;
+  font-weight: 400;
+  padding: 10px 12px;
+  border: 1px solid #c5ccd8;
+  border-radius: 4px;
+  width: 100%;
+}
+.pagina-pedidos dialog input:focus,
+.pagina-pedidos dialog textarea:focus {
+  outline: 2px solid var(--ped-verde-agua);
+  border-color: var(--ped-verde-agua);
+}
+.pagina-pedidos dialog textarea { resize: vertical; min-height: 80px; }
+
+.pagina-pedidos .linha { display: grid; gap: 12px; }
+.pagina-pedidos .linha-rua { grid-template-columns: 1fr 110px; }
+.pagina-pedidos .linha-cidade { grid-template-columns: 1fr 1fr 70px; }
+.pagina-pedidos .linha-produto { grid-template-columns: 1fr 100px; }
+
+.pagina-pedidos .status { font-weight: 400; font-size: .82rem; color: var(--ped-cinza); min-height: 1.1em; }
+.pagina-pedidos .status.erro { color: var(--ped-vermelho); }
+.pagina-pedidos .status.ok { color: #15803d; }
+.pagina-pedidos .botoes { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+
+@media (max-width: 700px) {
+  .pagina-pedidos .linha-cidade { grid-template-columns: 1fr 1fr; }
+  .pagina-pedidos .linha-cidade label:last-child { grid-column: span 2; }
+}
+
+
+/* ===== CABEÇALHO DA PÁGINA DE PEDIDOS =====
+   Deixe este bloco POR ÚLTIMO no arquivo CSS.
+   Se você colou um cabeçalho antigo (.pagina-pedidos header ...),
+   pode apagar o antigo: este aqui sobrescreve tudo. */
 .pagina-pedidos header {
   background: #0a2149;
   border-bottom: 5px solid #12b3a8;
@@ -594,18 +704,5 @@ body {
   }
 }
 
-.navegacao .link-nav {
-    color: var(--texto-claro);
-    text-decoration: none;
-    margin-left: 1.5rem;
-    font-weight: 500;
-    padding: 0.5rem 0.8rem;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-}
-
-.navegacao .link-nav:hover,
-.navegacao .link-nav.ativo {
-    background-color: var(--verde-agua);
-    color: var(--azul-escuro);
-}
+/* Formulário fica escondido até clicar em "Novo pedido" */
+.pagina-pedidos dialog:not([open]) { display: none; }
